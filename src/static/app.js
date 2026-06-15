@@ -14,6 +14,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const categoryFilters = document.querySelectorAll(".category-filter");
   const dayFilters = document.querySelectorAll(".day-filter");
   const timeFilters = document.querySelectorAll(".time-filter");
+  const themeToggleButton = document.getElementById("theme-toggle");
+  const themeIcon = themeToggleButton.querySelector(".theme-icon");
+  const themeLabel = themeToggleButton.querySelector(".theme-label");
 
   // Authentication elements
   const loginButton = document.getElementById("login-button");
@@ -43,6 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Authentication state
   let currentUser = null;
+  const themeStorageKey = "preferredTheme";
 
   // Time range mappings for the dropdown
   const timeRanges = {
@@ -166,6 +170,30 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function applyTheme(theme) {
+    const nextTheme = theme === "dark" ? "dark" : "light";
+    const isDarkMode = nextTheme === "dark";
+
+    document.body.dataset.theme = nextTheme;
+    themeToggleButton.setAttribute("aria-pressed", isDarkMode.toString());
+    themeToggleButton.setAttribute(
+      "aria-label",
+      `Switch to ${isDarkMode ? "light" : "dark"} mode`
+    );
+    themeIcon.textContent = isDarkMode ? "☀️" : "🌙";
+    themeLabel.textContent = isDarkMode ? "Light mode" : "Dark mode";
+  }
+
+  function loadThemePreference() {
+    applyTheme(localStorage.getItem(themeStorageKey));
+  }
+
+  function toggleTheme() {
+    const nextTheme = document.body.dataset.theme === "dark" ? "light" : "dark";
+    applyTheme(nextTheme);
+    localStorage.setItem(themeStorageKey, nextTheme);
+  }
+
   // Login function
   async function login(username, password) {
     try {
@@ -235,6 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Event listeners for authentication
+  themeToggleButton.addEventListener("click", toggleTheme);
   loginButton.addEventListener("click", openLoginModal);
   logoutButton.addEventListener("click", logout);
   closeLoginModal.addEventListener("click", closeLoginModalHandler);
@@ -862,6 +891,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // Initialize app
+  loadThemePreference();
   checkAuthentication();
   initializeFilters();
   fetchActivities();
